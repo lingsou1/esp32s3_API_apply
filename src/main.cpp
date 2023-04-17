@@ -227,6 +227,21 @@ void httpsRequest(String requestAddress){
   }
 }
 
+/**
+* @brief 解析https请求获取的JSON数据,解析出一言,是根据网站代码生成的,详见(https://fanyi-api.baidu.com/product/113)
+*
+* @param 
+* @param 
+* @return 无
+*/
+String httpsAddressBaidu(String dataTranslate,String APP_ID,String salt,String sign){
+  String requestAddress = "http://api.fanyi.baidu.com/api/trans/vip/translate?q="
+                          + dataTranslate +" &from=zh&to=en&appid=" 
+                          + APP_ID + "&salt=" +salt + "&sign" + sign;
+  return requestAddress;
+}
+
+
 
 
 /**
