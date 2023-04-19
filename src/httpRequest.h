@@ -5,4 +5,5 @@
 
 String httpsAddressBaidu(String dataTranslate,String APP_ID,String salt,String secretKey);
 void baiduHttpReq(String resource);
+
 #endif
