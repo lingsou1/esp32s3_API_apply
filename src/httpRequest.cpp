@@ -1,12 +1,16 @@
+//百度翻译的HTTP请求
+
 #include "md5_generate.h"
 #include <Arduino.h>
 #include <HTTPClient.h>
 #include "JSONParseData.h"
 
+
+
 /**
-* @brief 解析https请求获取的JSON数据,解析出一言,是根据网站代码生成的,详见(https://fanyi-api.baidu.com/product/113)
+* @brief 生成进行HTTP请求的链接
 *
-* @param String dataTranslate:需要翻译的数据
+* @param String dataTranslate:需要翻译的数据,就是"一言"获取的数据
 * @param String APP_ID:百度要求的一个东西,在百度的服务台查看
 * @param String salt:随机数,百度要求使用的,好像自己随便写
 * @param String secretKey:密钥,百度要求使用的,在百度的服务台查看
@@ -22,32 +26,33 @@ String httpsAddressBaidu(String dataTranslate,String APP_ID,String salt,String s
 }
 
 /**
-* @brief 
+* @brief 请求API,对返回的JSON数据进行解析,串口输出翻译数据
 *
-* @param 
-* @return 
+* @param String resource:HTTP请求的地址,包含了需要翻译的数据
+* @return 无
 */
 void baiduHttpReq(String resource)
 {
   HTTPClient http;
 
   Serial.print("[HTTP] begin...\n");
-  // configure traged server and url
-  //http.begin("https://www.howsmyssl.com/a/check", ca); //HTTPS
-  http.begin(resource); //HTTP
+
+  //向指定链接进行HTTP请求
+  http.begin(resource);
 
   Serial.print("[HTTP] GET...\n");
-  // start connection and send HTTP header
+
+  // 开始连接并发送请求头
   int httpCode = http.GET();
 
   // httpCode will be negative on error
   if(httpCode > 0) 
   {
 
-    // HTTP header has been send and Server response header has been handled
+    // 请求头已发送同时响应头已进行处理
     Serial.printf("[HTTP] GET... code: %d\n", httpCode);
 
-    // file found at server
+    // 在响应体中找需要的数据
     if(httpCode == HTTP_CODE_OK) 
     {
       String payload = http.getString();
