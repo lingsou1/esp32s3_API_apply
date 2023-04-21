@@ -1,3 +1,4 @@
+//这是专门处理JSON数据解析的部分程序 其中代码生成在 https://arduinojson.org/v6/assistant/
 #include <Arduino.h>
 #include <ArduinoJson.h>
 
@@ -47,6 +48,12 @@ String parseData(String data){
 }
 
 
+/**
+* @brief 解析http请求获取的JSON数据,是在解析百度翻译平台返回的数据,会通过串口打印出翻译的数据
+*
+* @param String data:需要解析的数据
+* @return 无
+*/
 void parseData_baidu(String data){
   // String input;
 
@@ -72,4 +79,36 @@ void parseData_baidu(String data){
   Serial.print(trans_result_0_dst_en);
   Serial.print("\n");
 
+}
+
+
+
+/**
+* @brief 解析"baiduAccessTokenGet.cpp"中https请求获取的JSON数据,解析需要的Token
+*
+* @param String data:需要解析的数据,就是HTTPS请求的响应数据
+* @return String:会解析请求得到的百度Token数据,有效期在30天,不用每次都获取这个数据
+*/
+String access_token_JSONParse(String data){
+    
+  StaticJsonDocument<1536> doc;
+
+  DeserializationError error = deserializeJson(doc, data);
+
+  if (error) {
+    Serial.print("deserializeJson() failed: ");
+    Serial.println(error.c_str());
+  }
+  else{
+    const char* refresh_token = doc["refresh_token"];
+    long expires_in = doc["expires_in"]; // 2592000
+    const char* session_key = doc["session_key"];
+    const char* access_token = doc["access_token"];
+    const char* scope = doc["scope"]; // "audio_voice_assistant_get brain_enhanced_asr audio_tts_post ...
+    const char* session_secret = doc["session_secret"]; // "1a3385b7fb9955cd48c46e36fb3bd484"
+
+    //将Token转化为字符串并返回
+    String Token = doc["access_token"].as<String>();
+    return Token;
+  }
 }
