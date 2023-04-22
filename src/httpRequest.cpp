@@ -1,4 +1,4 @@
-//百度翻译的HTTP请求
+//使用百度翻译(HTTP请求)
 
 #include "md5_generate.h"
 #include <Arduino.h>
@@ -8,7 +8,7 @@
 
 
 /**
-* @brief 生成进行HTTP请求的链接
+* @brief 生成进行HTTP请求的链接,详见https://fanyi-api.baidu.com/product/113
 *
 * @param String dataTranslate:需要翻译的数据,就是"一言"获取的数据
 * @param String APP_ID:百度要求的一个东西,在百度的服务台查看
@@ -17,7 +17,7 @@
 * @return String:会返回一个HTTP请求的地址
 */
 String httpsAddressBaidu(String dataTranslate,String APP_ID,String salt,String secretKey){
-  String sign = MD5_generate(APP_ID+dataTranslate+salt+secretKey);
+  String sign = MD5_generate(APP_ID+dataTranslate+salt+secretKey);    //进行MD5加密,百度的要求
 
   String requestAddress = "http://api.fanyi.baidu.com/api/trans/vip/translate?q="
                           + dataTranslate +"&from=zh&to=en&appid=" 
@@ -25,8 +25,10 @@ String httpsAddressBaidu(String dataTranslate,String APP_ID,String salt,String s
   return requestAddress;
 }
 
+
+
 /**
-* @brief 请求API,对返回的JSON数据进行解析,串口输出翻译数据
+* @brief 请求API,翻译需要翻译的数据,同时对返回的JSON数据进行解析,串口输出翻译数据
 *
 * @param String resource:HTTP请求的地址,包含了需要翻译的数据
 * @return 无
@@ -57,7 +59,7 @@ void baiduHttpReq(String resource)
     {
       String payload = http.getString();
       //Serial.print(payload);    //输出响应信息(JSON)
-      parseData_baidu(payload);
+      parseData_baidu(payload);   //JSON解析数据,串口输出翻译数据
     }
   } else 
   {

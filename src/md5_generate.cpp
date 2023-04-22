@@ -1,4 +1,7 @@
+//用来实现对字符串的MD5加密
+
 #include <MD5Builder.h>
+
 
 /**
 * @brief 对输入的字符串进行MD5加密

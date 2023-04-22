@@ -55,7 +55,7 @@ String parseData(String data){
 * @return 无
 */
 void parseData_baidu(String data){
-  // String input;
+ 
 
   StaticJsonDocument<256> doc;
 
@@ -64,7 +64,6 @@ void parseData_baidu(String data){
   if (error) {
     Serial.print("deserializeJson() failed: ");
     Serial.println(error.c_str());
-    return;
   }
 
   const char* from = doc["from"]; // "zh"
@@ -110,5 +109,38 @@ String access_token_JSONParse(String data){
     //将Token转化为字符串并返回
     String Token = doc["access_token"].as<String>();
     return Token;
+  }
+}
+
+
+
+/**
+* @brief 解析百度短语音识别请求返回的数据,获取识别的中文
+*
+* @param String data:需要解析的数据,就是HTTP请求的响应数据
+* @return String:可以得到识别出的中文,前提是请求成功了
+*/
+String JSONParse_shortSpeech(String data){
+
+  StaticJsonDocument<256> doc;
+
+  DeserializationError error = deserializeJson(doc, data);
+
+  if (error) {
+    Serial.print("deserializeJson() failed: ");
+    Serial.println(error.c_str());
+  }
+  else{
+    const char* corpus_no = doc["corpus_no"]; // "7224899475977736294"
+    const char* err_msg = doc["err_msg"]; // "success."
+    int err_no = doc["err_no"]; // 0
+
+    const char* result_0 = doc["result"][0]; // "不是不是不是啊！"
+
+    const char* sn = doc["sn"]; // "556335756311682177994"
+
+    //将Token转化为字符串并返回
+    String msg = doc["result"][0].as<String>();
+    return msg;
   }
 }

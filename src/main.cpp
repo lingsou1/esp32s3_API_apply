@@ -21,8 +21,8 @@
 时间:2023_4_19
 
 */
-//#define FLASH_SIZE 16384 // 16MB,设置开发板的flash,以最大限度的利用开发板
-#define FLASH_SIZE 16777216 // 16MB,设置开发板的flash,以最大限度的利用开发板
+
+
 
 //库文件
 #include <Arduino.h>
@@ -46,16 +46,19 @@ int counter;    //用来计数
 
 
 
-//百度相关的参数,这是自己需要改的,不能和我的一样(我的也是改了的,是不能直接用的),详见 https://fanyi-api.baidu.com/product/113
+//百度翻译需要的相关的参数,这是自己需要改的,不能和我的一样(我的也是改了的,是不能直接用的),
+//详见 https://fanyi-api.baidu.com/product/113
 String app_id = "202304175709";
 String secret_key = "TckiM1JM0u0Np";
 String baidu_salt = "12356";
 
-//百度的相关设置,获取token的,需要自己修改(我的是改过的,是不能直接用的),其实用电脑获取方便一点(我最后也是用电脑获取的token)详见 https://ai.baidu.com/ai-doc/REFERENCE/Ck3dwjhhu
+//百度的相关设置,用于获取token的,需要自己修改(我的是改过的,是不能直接用的),
+//其实用电脑获取方便一点(我最后也是用电脑获取的token,但是可以程序获取)详见 https://ai.baidu.com/ai-doc/REFERENCE/Ck3dwjhhu
 const String APIKey = "pIIzWqeatyk7A8i6snjFOKTd";
 const String secretKey = "nMjByHUvrBG1zXN5NtkNVuyX33XPAZ6b";
 
-//百度语音转文字需要的参数,(我的是改过的,是不能直接用的)详见 https://cloud.baidu.com/doc/SPEECH/s/Vk38lxily#raw-%E6%96%B9%E5%BC%8F%E4%B8%8A%E4%BC%A0%E9%9F%B3%E9%A2%91
+//百度语音转文字需要的参数,(我的是改过的,是不能直接用的)详见 
+//https://cloud.baidu.com/doc/SPEECH/s/Vk38lxily#raw-%E6%96%B9%E5%BC%8F%E4%B8%8A%E4%BC%A0%E9%9F%B3%E9%A2%91
 const String cuid = "fe8042448e8f61fec5023";
 const String token = "24.92165bcfb2fdfd4576f00ca411391843.2592000.1684682773.282335-32424903";
 
@@ -82,10 +85,15 @@ void setup() {
   wifi_multi_init();
   wifi_multi_con();
 
+  //测试是否开启PSRAM,以及输出PSRAM空间
+  Serial.printf("Deafult free size: %d\n", heap_caps_get_free_size(MALLOC_CAP_DEFAULT));
+  Serial.printf("PSRAM free size: %d\n", heap_caps_get_free_size(MALLOC_CAP_SPIRAM));
+
+
   //设置时钟
   setClock();
 
-  //ticker定时
+  //ticker定时,用于多任务处理
   //ticker.attach(1,count);
 
   //开启闪存文件系统,为了读取录音文件
@@ -96,11 +104,11 @@ void setup() {
     Serial.print("\nSPIFFS Failed to start!!!");
   }
 
-  // //token的获取,获取一次就可以了,不要重复获取,容易搞混,建议在电脑端获取直接宏定义使用token即可
+  // //token的获取,获取一次就可以了,不要重复获取,每个TOKEN可以用30天,重复获取容易搞混,建议在电脑端获取同时直接宏定义使用token即可
   // String res = httpsAddress_baiduToken(APIKey,secretKey);
   // httpsRequest_baiduToken(res);
 
-  //测试音频数据的文字转换
+  //测试将音频文件通过API的使用获取到文字
   String testUrl = httpAddressSpeech(cuid,token);
   translateSpeechToText(testUrl);
 }

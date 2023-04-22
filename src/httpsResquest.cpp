@@ -1,4 +1,6 @@
 //用来对HTTPS进行请求
+//用于获取"一言"数据("一言"就是一句有哲理的句子)
+//"一言"详见内容 :https://developer.hitokoto.cn/sentence/
 
 #include <WiFiClientSecure.h>
 #include <Arduino.h>
@@ -37,7 +39,7 @@ HMUfpIBvFSDJ3gyICh3WZlXi/EjJKSZp4A==\n\
 * @brief 根据参数输出需要请求的网址的字符串
 *
 * @param String dataFrom:请求资源的来自地点(可以用a~i)(详见https://developer.hitokoto.cn/sentence/)
-* @param type dataFrom:需要返回的内容的格式(一般用json)(详见https://developer.hitokoto.cn/sentence/)
+* @param String type:需要返回的内容的格式(一般用json,也建议用JSON)(详见https://developer.hitokoto.cn/sentence/)
 * @return String:会返回一个请求地址的字符串
 */
 String httpsAddress(String dataFrom,String type){
@@ -52,7 +54,7 @@ String httpsAddress(String dataFrom,String type){
 /**
 * @brief 进行HTTPS请求,同时解析JSON数据,会返回"一言"数据(以字符串的形式)
 *
-* @param String requestAddress:需要连接的网站的地址
+* @param String requestAddress:需要请求的网站的地址
 * @return String:返回解析出的"一言"数据
 */
 String httpsRequest(String requestAddress){

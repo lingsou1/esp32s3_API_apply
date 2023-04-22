@@ -1,4 +1,4 @@
-//用来对HTTPS进行请求,获取百度的 token
+//使用HTTPS请求,获取百度短语音识别的参数token
 
 #include <WiFiClientSecure.h>
 #include <Arduino.h>
@@ -34,11 +34,11 @@ WD9f\n\
 
 
 /**
-* @brief 根据参数输出需要请求的网址的字符串
+* @brief 根据参数输出需要请求的网址的字符串,参数详情见https://ai.baidu.com/ai-doc/REFERENCE/Ck3dwjhhu
 *
-* @param String client_id:
-* @param String client_secret:
-* @return String:会返回一个请求地址的字符串
+* @param String client_id:必须参数，应用的API Key
+* @param String client_secret:必须参数，应用的Secret Key
+* @return String:会返回一个HTTPS请求地址的字符串
 */
 String httpsAddress_baiduToken(String client_id,String client_secret){
   String requestAddress = "https://aip.baidubce.com/oauth/2.0/token?grant_type=client_credentials&client_id="
@@ -50,10 +50,12 @@ String httpsAddress_baiduToken(String client_id,String client_secret){
 }
 
 
+
 /**
 * @brief 进行HTTPS请求,同时串口输出相关的Token数据,不会将全部的返回数据串口输出
+          可以自定义修改,将这个token设置为返回值
 *
-* @param String requestAddress:需要连接的网站的地址
+* @param String requestAddress:需要HTTPS请求的网站的地址
 * @return 无
 */
 void httpsRequest_baiduToken(String requestAddress){
