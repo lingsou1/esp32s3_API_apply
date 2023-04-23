@@ -50,7 +50,7 @@ String translateSpeechToText(String url) {
   // 打开录音文件,这个文件需要提前上传至闪存
   File audiofile = SPIFFS.open("/16k.pcm", "r");
   if (!audiofile) {
-    Serial.println("Failed to open audio file");
+    Serial.println("Failed to open audio file\n");
     return "";
   }
 
@@ -93,10 +93,11 @@ String translateSpeechToText(String url) {
     // 获取HTTP响应
     String httpResponse = http.getString();
     String shortSpeech = JSONParse_shortSpeech(httpResponse);
-    Serial.println(shortSpeech);
+    //Serial.println(shortSpeech);
+    return shortSpeech;
   }
   else{
-    Serial.println("Failed to translate speech to text");
+    Serial.println("Failed to translate speech to text\n");
     http.end();
     audiofile.close();
     return "";

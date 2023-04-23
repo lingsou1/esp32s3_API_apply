@@ -60,7 +60,7 @@ const String secretKey = "nMjByHUvrBG1zXN5NtkNVuyX33XPAZ6b";
 //百度语音转文字需要的参数,(我的是改过的,是不能直接用的)详见 
 //https://cloud.baidu.com/doc/SPEECH/s/Vk38lxily#raw-%E6%96%B9%E5%BC%8F%E4%B8%8A%E4%BC%A0%E9%9F%B3%E9%A2%91
 const String cuid = "fe8042448e8f61fec5023";
-const String token = "24.92165bcfb2fdfd4576f00ca411391843.2592000.1684682773.282335-32424903";
+const String token = "24.7d15c36e8620a1496ee2f1170e16492b.2592000.1684808065.282335-32424903";
 
 
 
@@ -110,7 +110,8 @@ void setup() {
 
   //测试将音频文件通过API的使用获取到文字
   String testUrl = httpAddressSpeech(cuid,token);
-  translateSpeechToText(testUrl);
+  String msg = translateSpeechToText(testUrl);
+  Serial.print(msg);
 }
 
 
