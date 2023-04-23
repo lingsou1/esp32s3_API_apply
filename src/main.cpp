@@ -98,10 +98,10 @@ void setup() {
 
   //开启闪存文件系统,为了读取录音文件
   if(SPIFFS.begin()){
-    Serial.print("\nSPIFFS Start!!!");
+    Serial.print("SPIFFS Start!!!\n");
   }
   else{
-    Serial.print("\nSPIFFS Failed to start!!!");
+    Serial.print("SPIFFS Failed to start!!!\n");
   }
 
   // //token的获取,获取一次就可以了,不要重复获取,每个TOKEN可以用30天,重复获取容易搞混,建议在电脑端获取同时直接宏定义使用token即可
@@ -112,6 +112,12 @@ void setup() {
   String testUrl = httpAddressSpeech(cuid,token);
   String msg = translateSpeechToText(testUrl);
   Serial.print(msg);
+  Serial.print("\n");
+
+  //测试是否开启PSRAM,以及输出PSRAM空间
+  Serial.printf("Deafult free size: %d\n", heap_caps_get_free_size(MALLOC_CAP_DEFAULT));
+  Serial.printf("PSRAM free size: %d\n", heap_caps_get_free_size(MALLOC_CAP_SPIRAM));
+
 }
 
 

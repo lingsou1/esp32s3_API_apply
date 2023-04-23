@@ -11,8 +11,8 @@
 #include "JSONParseData.h"
 #include <SPIFFS.h>
 #include "JSONParseData.h"
+#include <esp_heap_caps.h>
 
-#include <ESP.h>
  
 
 
@@ -53,7 +53,8 @@ String translateSpeechToText(String url) {
     Serial.println("Failed to open audio file\n");
     return "";
   }
-
+  
+  //未使用PSRAM
   // 将录音文件读取至缓存区,并将其二进制文件放在HTTP请求的请求体中
   /*
     这段程序的作用是从音频文件中读取数据，并将读取到的数据拼接为一个字符串，
@@ -62,28 +63,52 @@ String translateSpeechToText(String url) {
     并将buffer中的数据转换为字符串形式，存储在名为requestBody的字符串中。
     最终，requestBody中存储的数据将作为HTTP请求的请求体，通过网络发送到服务器端。
   */
-  const size_t bufferSize = 1024;
-  uint8_t buffer[bufferSize];
-  size_t bytesRead = 0;
-  String requestBody = "";
-  while (audiofile.available()) {
-    bytesRead = audiofile.read(buffer, bufferSize);
-    requestBody += String((char*)buffer, bytesRead);
-  }
-
-
-
-  // 将录音文件读取在PSRAM中去,这样可以不使用RAM来读取了(PSRAM有8MB),但是我不是很清楚怎么用PSRAM,最后一句总是会报错
-  //当我注释掉PSRAM的内存释放后文件也能正常使用
   // const size_t bufferSize = 1024;
-  // uint8_t *psramBuffer = (uint8_t *)ps_malloc(bufferSize); // 在 PSRAM 中分配缓冲区
+  // uint8_t buffer[bufferSize];
   // size_t bytesRead = 0;
   // String requestBody = "";
   // while (audiofile.available()) {
-  //   bytesRead = audiofile.read(psramBuffer, bufferSize);
-  //   requestBody += String((char*)psramBuffer, bytesRead); // 从PARSM中读取文件
+  //   bytesRead = audiofile.read(buffer, bufferSize);
+  //   requestBody += String((char*)buffer, bytesRead);
   // }
-  // ps_free(psramBuffer); // 在PSRAM释放缓冲区
+
+
+
+  // 将录音文件读取在PSRAM中去,这样可以不使用RAM来读取了(PSRAM有8MB),但是我不是很清楚怎么用PSRAM
+  const size_t bufferSize = 1024;
+  uint8_t *psramBuffer = NULL; // PSRAM 缓冲区指针
+  size_t bytesRead = 0;
+  String requestBody = "";
+  psramBuffer = (uint8_t *)heap_caps_malloc(bufferSize, MALLOC_CAP_SPIRAM);
+
+  //测试是否开启PSRAM,以及输出PSRAM空间
+  Serial.printf("Deafult free size: %d\n", heap_caps_get_free_size(MALLOC_CAP_DEFAULT));
+  Serial.printf("PSRAM free size: %d\n", heap_caps_get_free_size(MALLOC_CAP_SPIRAM));
+
+  if(psramBuffer == NULL) 
+  {
+  Serial.println("Failed to allocate PSRAM buffer.");
+  return "";
+  }
+  else{
+    while (audiofile.available()) 
+    {
+      bytesRead = audiofile.read(psramBuffer, bufferSize);
+      requestBody += String((char*)psramBuffer, bytesRead);
+    }
+  }
+
+  //测试是否开启PSRAM,以及输出PSRAM空间
+  Serial.printf("Deafult free size: %d\n", heap_caps_get_free_size(MALLOC_CAP_DEFAULT));
+  Serial.printf("PSRAM free size: %d\n", heap_caps_get_free_size(MALLOC_CAP_SPIRAM));
+
+  //释放PSRAM
+  heap_caps_free(psramBuffer);
+
+  //测试是否开启PSRAM,以及输出PSRAM空间
+  Serial.printf("Deafult free size: %d\n", heap_caps_get_free_size(MALLOC_CAP_DEFAULT));
+  Serial.printf("PSRAM free size: %d\n", heap_caps_get_free_size(MALLOC_CAP_SPIRAM));
+
 
 
 
@@ -94,7 +119,17 @@ String translateSpeechToText(String url) {
     String httpResponse = http.getString();
     String shortSpeech = JSONParse_shortSpeech(httpResponse);
     //Serial.println(shortSpeech);
+
+    Serial.printf("Deafult free size: %d\n", heap_caps_get_free_size(MALLOC_CAP_DEFAULT));
+    Serial.printf("PSRAM free size: %d\n", heap_caps_get_free_size(MALLOC_CAP_SPIRAM));
+    Serial.print("test!!!\n");
+
+    // 结束HTTP以及关闭闪存文件
+    http.end();
+    audiofile.close();
+
     return shortSpeech;
+
   }
   else{
     Serial.println("Failed to translate speech to text\n");
@@ -102,8 +137,7 @@ String translateSpeechToText(String url) {
     audiofile.close();
     return "";
   }
-
-  // 结束HTTP以及关闭闪存文件
-  http.end();
-  audiofile.close();
 }
+
+
+
