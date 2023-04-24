@@ -28,6 +28,7 @@
 #include <Arduino.h>
 #include <Ticker.h>
 #include <SPIFFS.h>
+#include <esp32-hal-psram.h>
 
 //自己写的文件
 #include "wifiSet.h"
@@ -85,10 +86,10 @@ void setup() {
   wifi_multi_init();
   wifi_multi_con();
 
-  //测试是否开启PSRAM,以及输出PSRAM空间
-  Serial.printf("Deafult free size: %d\n", heap_caps_get_free_size(MALLOC_CAP_DEFAULT));
-  Serial.printf("PSRAM free size: %d\n", heap_caps_get_free_size(MALLOC_CAP_SPIRAM));
-
+  //初始化PSRAM,输出PSRAM空间
+  psramInit();
+  Serial.printf("max allocate psram is : %d\n",ESP.getMaxAllocPsram());
+  Serial.printf("free psram is: %d\n",ESP.getFreePsram());
 
   //设置时钟
   setClock();
@@ -114,9 +115,9 @@ void setup() {
   Serial.print(msg);
   Serial.print("\n");
 
-  //测试是否开启PSRAM,以及输出PSRAM空间
-  Serial.printf("Deafult free size: %d\n", heap_caps_get_free_size(MALLOC_CAP_DEFAULT));
-  Serial.printf("PSRAM free size: %d\n", heap_caps_get_free_size(MALLOC_CAP_SPIRAM));
+  //输出PSRAM空间
+  Serial.printf("max allocate psram is : %d\n",ESP.getMaxAllocPsram());
+  Serial.printf("free psram is: %d\n",ESP.getFreePsram());
 
 }
 

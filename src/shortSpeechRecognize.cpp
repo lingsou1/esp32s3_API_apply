@@ -75,15 +75,16 @@ String translateSpeechToText(String url) {
 
 
   // 将录音文件读取在PSRAM中去,这样可以不使用RAM来读取了(PSRAM有8MB),但是我不是很清楚怎么用PSRAM
+  //但是程序是可以运行的
   const size_t bufferSize = 1024;
   uint8_t *psramBuffer = NULL; // PSRAM 缓冲区指针
   size_t bytesRead = 0;
   String requestBody = "";
   psramBuffer = (uint8_t *)heap_caps_malloc(bufferSize, MALLOC_CAP_SPIRAM);
 
-  //测试是否开启PSRAM,以及输出PSRAM空间
-  Serial.printf("Deafult free size: %d\n", heap_caps_get_free_size(MALLOC_CAP_DEFAULT));
-  Serial.printf("PSRAM free size: %d\n", heap_caps_get_free_size(MALLOC_CAP_SPIRAM));
+  //输出PSRAM空间
+  Serial.printf("max allocate psram is : %d\n",ESP.getMaxAllocPsram());
+  Serial.printf("free psram is: %d\n",ESP.getFreePsram());
 
   if(psramBuffer == NULL) 
   {
@@ -93,43 +94,29 @@ String translateSpeechToText(String url) {
   else{
     while (audiofile.available()) 
     {
+      //持续读取录音文件内容并将其加到请求体中去
       bytesRead = audiofile.read(psramBuffer, bufferSize);
       requestBody += String((char*)psramBuffer, bytesRead);
     }
   }
 
-  //测试是否开启PSRAM,以及输出PSRAM空间
-  Serial.printf("Deafult free size: %d\n", heap_caps_get_free_size(MALLOC_CAP_DEFAULT));
-  Serial.printf("PSRAM free size: %d\n", heap_caps_get_free_size(MALLOC_CAP_SPIRAM));
-
   //释放PSRAM
   heap_caps_free(psramBuffer);
-
-  //测试是否开启PSRAM,以及输出PSRAM空间
-  Serial.printf("Deafult free size: %d\n", heap_caps_get_free_size(MALLOC_CAP_DEFAULT));
-  Serial.printf("PSRAM free size: %d\n", heap_caps_get_free_size(MALLOC_CAP_SPIRAM));
-
-
 
 
   // 发送HTTP请求
   int httpcode = http.POST(requestBody);
   if (httpcode == HTTP_CODE_OK) {
-    // 获取HTTP响应
+    // 获取HTTP响应,并通过JSON解析出需要的内容同时还返回了需要的文本(以字符串的形式)
     String httpResponse = http.getString();
     String shortSpeech = JSONParse_shortSpeech(httpResponse);
     //Serial.println(shortSpeech);
-
-    Serial.printf("Deafult free size: %d\n", heap_caps_get_free_size(MALLOC_CAP_DEFAULT));
-    Serial.printf("PSRAM free size: %d\n", heap_caps_get_free_size(MALLOC_CAP_SPIRAM));
-    Serial.print("test!!!\n");
 
     // 结束HTTP以及关闭闪存文件
     http.end();
     audiofile.close();
 
     return shortSpeech;
-
   }
   else{
     Serial.println("Failed to translate speech to text\n");
